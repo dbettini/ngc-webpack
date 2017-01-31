@@ -20,7 +20,7 @@ export class WebpackResourceLoader implements ResourceLoader {
 
   private emittedFiles: any = {};
 
-  constructor(private _parentCompilation: any) {
+  constructor(private _parentCompilation: any, private collectAssets: boolean = false) {
     this._context = _parentCompilation.context;
   }
 
@@ -81,13 +81,15 @@ export class WebpackResourceLoader implements ResourceLoader {
             delete this._parentCompilation.assets[outputName];
           }
 
-          entries[0].modules.forEach(m => {
-            if (m.assets) {
-              Object.keys(m.assets).forEach( k => {
-                this.emittedFiles[k] = m.assets[k];
-              });
-            }
-          });
+          if (this.collectAssets) {
+            entries[0].modules.forEach(m => {
+              if (m.assets) {
+                Object.keys(m.assets).forEach( k => {
+                  this.emittedFiles[k] = m.assets[k];
+                });
+              }
+            });
+          }
 
           resolve({
             // Hash of the template entry point.
